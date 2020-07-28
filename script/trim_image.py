@@ -62,7 +62,6 @@ class FileDropTarget(wx.FileDropTarget):
 
                     # put original image on frame
                     self.window.label_original = wx.StaticText(self.window.panel,-1,"Original",pos=(10,190))
-                    image_pil.thumbnail((300,300), Image.ANTIALIAS)
                     self.window.put_image(image_pil,(10,200))
                 else:
                     # error dialog
@@ -89,9 +88,11 @@ class MyFrame(wx.Frame):
         self.text_orig.Clear()
         self.text_out.Clear()
 
-    def put_image(self,image_pil,place,size=(300,300)):
-        image_wx = wx.Image(image_pil.size[0],image_pil.size[1])
-        image_wx.SetData(image_pil.convert('RGB').tobytes())
+    def put_image(self,image_pil_orig,place,size=(300,300)):
+        image_pil_copy = image_pil_orig.copy()
+        image_pil_copy.thumbnail((300,300), Image.ANTIALIAS)
+        image_wx = wx.Image(image_pil_copy.size[0],image_pil_copy.size[1])
+        image_wx.SetData(image_pil_copy.convert('RGB').tobytes())
         wx.StaticBitmap(self.panel, -1, image_wx.ConvertToBitmap(), place, size)
 
     def on_click_trim(self,event):
@@ -109,7 +110,6 @@ class MyFrame(wx.Frame):
 
             # put original image on frame
             self.label_original = wx.StaticText(self.panel,-1,"Original",pos=(10,190))
-            self.image_pil.thumbnail((300,300), Image.ANTIALIAS)
             self.put_image(self.image_pil,(10,200))
 
             # create trimmed image
@@ -123,7 +123,6 @@ class MyFrame(wx.Frame):
 
             # put trimmed image on frame
             self.label_trim = wx.StaticText(self.panel,-1,"Trimmed",pos=(400,190))
-            self.image_trim_pil.thumbnail((300,300), Image.ANTIALIAS)
             self.put_image(self.image_trim_pil,(400,200))
 
             # ready
