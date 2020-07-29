@@ -4,9 +4,13 @@ import re
 import pathlib
 from PIL import Image
 
-segs = [".png",".bmp",".jpg"]
-pattern =  ".*(" + ")|(".join(segs) + ").*"
-comp = re.compile(pattern)
+segs_read = [".png",".bmp",".jpg"]
+pattern_read =  ".*(" + ")|(".join(segs_read) + ").*"
+comp_read = re.compile(pattern_read)
+
+segs_write = [".png",".bmp",".jpg",".pdf"]
+pattern_write =  ".*(" + ")|(".join(segs_write) + ").*"
+comp_write = re.compile(pattern_write)
 
 def make_output_name(txt):
     return  txt[:-4]+"-trim" + txt[-4:]
@@ -31,7 +35,7 @@ def trim(image,trim_color=(255,255,255),margin=5):
 
 def save_output_image(image_pil,file):
     dialog_message = None
-    if comp.search(file)==None:
+    if comp_write.search(file)==None:
         dialog_message = "Unsupported extension:\n"+file
     elif pathlib.Path(file).exists()==True:
         dialog_message = "The file already exists:\n"+file
@@ -39,6 +43,8 @@ def save_output_image(image_pil,file):
     if dialog_message==None:
         if file[-4:]==".jpg":
             image_pil.save(file,quality=95)
+        elif file[-4:]==".pdf":
+            image_pil.save(file,"PDF",resolution=100.0)
         else:
             image_pil.save(file)
     else:
@@ -55,7 +61,7 @@ class FileDropTarget(wx.FileDropTarget):
     def OnDropFiles(self,x,y,filenames):
         try:
             for file in filenames:
-                if comp.search(file)!=None:
+                if comp_read.search(file)!=None:
                     self.window.text_orig.SetValue(file)
                     # get original image
                     image_pil = Image.open(file)
@@ -101,7 +107,7 @@ class MyFrame(wx.Frame):
         dialog_message = None
         if pathlib.Path(file).exists()==False:
             dialog_message = "The file does not exist:\n"+file
-        elif comp.search(file)==None:
+        elif comp_read.search(file)==None:
             dialog_message = "Can't open the file:\n"+file
         
         if dialog_message==None:
